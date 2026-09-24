@@ -1,0 +1,60 @@
+name: Student Performance MLOps Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  ml-pipeline:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1. Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4. Train model and evaluate quality gate
+      - name: Train and evaluate model
+        run: |
+          python src/train.py
+
+      # 5. Run application tests
+      - name: Run application tests
+        run: |
+          pytest -v
+
+      # 6. Create downloadable package
+      - name: Prepare model package
+        run: |
+          mkdir -p package
+
+          cp artifacts/model.joblib package/model.joblib
+          cp artifacts/metrics.json package/metrics.json
+          cp src/predict.py package/predict.py
+          cp requirements.txt package/requirements.txt
+
+          echo "Workflow Run: $GITHUB_RUN_NUMBER" > package/README.txt
+          echo "Commit: $GITHUB_SHA" >> package/README.txt
+
+      # 7. Publish artifact ONLY after all previous steps pass
+      - name: Upload validated model package
+        uses: actions/upload-artifact@v4
+        with:
+          name: student-model-package-run-${{ github.run_number }}
+          path: package/
