@@ -397,10 +397,14 @@ def main():
 
     model = build_model()
 
+    # model.fit(
+    #     X_train,
+    #     y_train
+    # )
     model.fit(
-        X_train,
-        y_train
-    )
+    X_train.iloc[:20],
+    y_train.iloc[:20]
+)
 
     model_predictions = model.predict(
         X_val
