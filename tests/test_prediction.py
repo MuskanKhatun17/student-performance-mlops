@@ -61,8 +61,8 @@ def test_valid_prediction():
 
     result = predict(sample_student())
 
-    # assert len(result) == 1
-    assert len(result) == 2
+    assert len(result) == 1
+    # assert len(result) == 2
 
     assert isinstance(float(result[0]), float)
 
